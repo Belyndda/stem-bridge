@@ -1,0 +1,15 @@
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ArrowUpRight, Network, Search, X } from 'lucide-react'
+import { students, skillCategories } from '../lib/data'
+import { recommendTeam, coverage } from '../lib/matching'
+import StudentProfileCard from './StudentProfileCard'
+export function TeamPreview({project:p}) {
+ const team=recommendTeam(p,students).map(id=>students.find(s=>s.id===id)),covered=coverage(p,team)
+ return <div className="team-preview"><div className="preview-heading"><span><Network size={16}/> DIFFERENT PERSPECTIVES, ONE SOLUTION</span><span>{covered.length}/{p.skills.length} skills covered</span></div><div className="preview-challenge"><div><span className="eyebrow">{p.org}</span><h3>{p.title}</h3><p>{p.description}</p></div><Link className="round-link" aria-label={`Build a team for ${p.title}`} to={`/matching?project=${p.id}`}><ArrowUpRight/></Link></div><div className="preview-people">{team.map(s=><div key={s.id}><img src={s.portrait} alt={s.name}/><strong>{s.name.split(' ')[0]}</strong><small>{s.major}</small></div>)}</div><div className="coverage-track">{p.skills.map(k=><span className={covered.includes(k)?'covered':''} key={k}>{covered.includes(k)?'✓':'○'} {k}</span>)}</div><Link className="text-link" to={`/matching?project=${p.id}`}>Explore how they complement each other <ArrowUpRight size={15}/></Link></div>
+}
+export default function CommunityHub({project}) {
+ const [skill,setSkill]=useState(''),[query,setQuery]=useState('')
+ const shown=students.filter(s=>(!skill||s.skills.includes(skill))&&`${s.name} ${s.major} ${s.interests.join(' ')}`.toLowerCase().includes(query.toLowerCase()))
+ return <div className="community-hub"><div className="community-heading"><div><span className="eyebrow">YOUR COMMUNITY OF CURIOUS MINDS</span><h2>Find your people. <span>Build something meaningful.</span></h2></div><span className="community-count">{students.length} perspectives. Endless possibilities.</span></div><div className="community-tools"><label className="search"><Search size={17}/><input aria-label="Find students" placeholder="Find a name, discipline, or interest…" value={query} onChange={e=>setQuery(e.target.value)}/></label><span>{shown.length} students{skill&&<> · {skill} <button aria-label="Clear skill filter" onClick={()=>setSkill('')}><X size={14}/></button></>}</span></div><div className="student-rail">{shown.map(s=><StudentProfileCard key={s.id} student={s}/>)}</div>{!shown.length&&<p role="status">No students match these filters. Try another discipline or interest.</p>}<div className="community-bottom"><div className="skill-discovery"><div className="eyebrow">WHAT WILL YOU BRING TO THE TEAM?</div><h3>Different skills. Shared curiosity.</h3><div className="skill-columns">{skillCategories.map(c=><div className={`skill-category ${c.color}`} key={c.title}><h4>{c.title}</h4>{c.skills.map(k=><button aria-pressed={skill===k} className={skill===k?'active':''} key={k} onClick={()=>setSkill(skill===k?'':k)}><span>{k}</span><small>{students.filter(s=>s.skills.includes(k)).length}</small></button>)}</div>)}</div></div><TeamPreview project={project}/></div></div>
+}

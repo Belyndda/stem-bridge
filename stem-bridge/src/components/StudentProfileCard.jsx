@@ -1,0 +1,5 @@
+import { CheckCircle2 } from 'lucide-react'
+export default function StudentProfileCard({student:s,project,action}) {
+ const relevant=project?s.skills.filter(k=>[...project.skills,...project.helpful].includes(k)):s.skills
+ return <article className={`student-card ${s.color}`}><div className="portrait-wrap"><img src={s.portrait} alt={`Illustrated portrait of ${s.name}`} loading="lazy"/><span className="student-year">{s.year}</span></div><div className="student-info"><h3>{s.name}</h3><span className="student-major">{s.major}</span><div className="student-skills">{s.skills.slice(0,3).map(k=><span key={k}>{k}</span>)}</div><p className="student-interests">{s.interests.join(' · ')}</p><span className="student-status"><span/>{s.status} · {s.hours}h/wk</span>{project&&<details><summary><CheckCircle2 size={13}/> Why this perspective?</summary><p>Contributes {relevant.join(', ')||'complementary expertise'}. {s.interests.includes(project.category)?`Shares an interest in ${project.category.toLowerCase()}.`:''} Wants to learn {s.goals.join(', ')}.</p></details>}{action&&<div className="student-action">{action}</div>}</div></article>
+}
